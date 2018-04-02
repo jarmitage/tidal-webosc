@@ -1,0 +1,141 @@
+import Sound.OSC.FD
+
+import Sound.Tidal.Utils
+
+import qualified Data.Aeson as A
+
+killSnd :: (a, b, c) -> (a, c)
+killSnd (a,b,c) = (a,c)
+
+instance A.ToJSON Value where
+  toJSON (VS s) = A.toJSON s
+  toJSON (VF f) = A.toJSON f
+  toJSON (VI i) = A.toJSON i
+
+instance A.ToJSON Param where
+  toJSON param = A.toJSON (name param)
+
+instance A.ToJSONKey Param
+
+-- A.toJSON $ map killSnd $ arc (n "1 2") (now, now + 1)
+
+-- A.encode $ A.toJSON $ arc (sound "x") (0,1)
+
+let wrapDirts ds = do x <- openUDP "127.0.0.1" 57121
+                      let f (n,d) p = do now <- getNow
+                                         sendOSC x $ Message "/vis" [int32 (floor now), int32 (n + 1),
+                                                                     string $ show $
+                                                                     A.encode $ A.toJSON $
+                                                                     map killSnd $
+                                                                     arc p (now,now+3)]
+                                         d p
+                          fs = map f (enumerate ds)
+                      return fs
+
+[x1,x2,x3,x4,x5] <- wrapDirts [d1,d2,d3,d4,d5]
+
+x1 silence
+
+x1 $ sound "bd cp"
+
+x1 $ sound "bd ~ ~ cp ~"
+
+x1 $ every 2 (fast 2) $ sound "[bd sn]*2" # gain "0.7 0.8" # orbit "0"
+
+x1 $ sl 2
+   . jux (rev)
+   . ev 4 (fa 0.5 . (> ac "2.5 -2.5") . (> end "0.25")) . ev 8 ((> sp "-1") . (> vowel "i e o u"))
+   .(> rvb "0.1:0.1").(> del "0.2:0.05:0.5").(> hpf' (ssinf 0.5e3 1.5e3 (1/16)) "0.2")
+   $ u (
+       fmap (+12) $
+       ev 4 (fmap (+2)) $
+       ev 12 (fmap (+5)) $
+       oa (1/2) (-12) $
+       "[0 3 -4 -7 -9 [3 1]]"
+     ) > s "[vxda]" > end "0.05" > go "0.8:2"
+
+-----------------
+
+
+{-
+
+[
+	(
+		(3296 % 1,3297 % 1),(3296 % 1,3297 % 1),
+		fromList [(s,bd)]
+	),
+	(
+		(3297 % 1,3298 % 1),(3297 % 1,3298 % 1),
+		fromList [(s,bd)]
+	)
+]
+
+-}
+
+x1 $ sound "bd ~ ~ cp ~"
+
+{-
+
+[
+	(
+		(17308 % 5,17309 % 5),(17308 % 5,17309 % 5),
+		fromList [(s,cp)]),
+	(
+		(3462 % 1,17311 % 5),(3462 % 1,17311 % 5),
+		fromList [(s,bd)]
+	)
+]
+
+17308 % 5 = 3
+17309 % 5 = 4
+3462  % 1 = 0
+17311 % 5 = 1
+
+-}
+
+x1 $ sound "bd sn lt cp ht"
+
+{-
+  
+  ht 18749 % 5 = 4, 3750  % 1 = 0
+
+  bd 3750  % 1 = 0, 18751 % 5 = 1
+  sn 18751 % 5 = 1, 18752 % 5 = 2
+  lt 18752 % 5 = 2, 18753 % 5 = 3
+  cp 18753 % 5 = 3, 18754 % 5 = 4
+  ht 18754 % 5 = 4, 3751  % 1 = 0
+
+-- now = 3750
+-- total events = 5 or
+-- delta = 3750 / 1875*
+
+-}
+
+x1 silence
+
+arc (sound "bd sn lt cp ht") (now, now + 4)
+
+
+x1 $ every 2 (fast 2) $ sound "bd sn lt cp ht" -- 2 cycles
+
+{-
+
+[  
+   bd ((4324 % 1,  21621   % 5)
+   sn ((21621 % 5, 21622   % 5),
+   lt ((21622 % 5, 21623   % 5),
+   cp ((21623 % 5, 21624   % 5),
+   ht ((21624 % 5, 4325   % 1),
+   ((4325 % 1, 21626   % 5),
+   fromList   [  
+      (s,
+      bd)
+   ]   )
+]
+
+
+-}
+
+
+-- emacs macro / hot key for 'preview' vs. 'execute' ..? separate OSC port / path?
+
