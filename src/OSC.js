@@ -27,8 +27,11 @@ class OSC extends React.Component{
     };
 
     const onMessage = data => {
-      this.setState({address: data.address, args: data.args})
+      let blob = data.args[1].value;
       console.log(data);
+      // console.log(JSON.parse(blob));
+      this.setState({address: data.address, args: data.args})
+      // console.log(data);
     };
 
     const send = msg => {
@@ -43,7 +46,7 @@ class OSC extends React.Component{
           <p>Address: {this.state.address}</p>
           {this.state.args.map((arg, index) => {
             if (arg.type === 'string'){
-              return (<p key={index}>{arg.type} {JSON.parse(arg.value)}</p>)
+              return (<p key={index}>{arg.type} {JSON.parse(arg.value.toString())}</p>)
             } else {
               return (<p key={index}>{arg.type} {arg.value}</p>)
             }

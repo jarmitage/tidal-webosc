@@ -139,3 +139,132 @@ x1 $ every 2 (fast 2) $ sound "bd sn lt cp ht" -- 2 cycles
 
 -- emacs macro / hot key for 'preview' vs. 'execute' ..? separate OSC port / path?
 
+
+import Sound.OSC.Type.JSON
+
+let p = map killSnd $ arc (sound "bd cp lt sn" # gain "0.5 1") (now, now+1)
+
+:t show p
+
+:t Data.ByteString.Char8.pack $ show p
+
+:t 'a'
+
+Data.ByteString.Char8.split "" ['a']
+
+blob_pack $ Data.ByteString.Char8.split 'a' $ Data.ByteString.Char8.pack ['a','b']
+
+Data.ByteString.Char8.split "" $ Data.ByteString.Char8.pack $ show p
+
+Blob $ blob_pack [256]
+
+map blob_pack $ show $ p
+
+:t Data.ByteString.Char8.split "" $ show p
+
+fromRational $ fst $ fst $ head p
+
+:t encode_blob $ A.encode $ A.toJSON $ p
+
+blob_pack $ Data.ByteString.Lazy.fromStrict $ Data.ByteString.Char8.pack $ show p
+
+let b = Data.ByteString.Lazy.pack $
+
+Blob $ blob_pack (Data.ByteString.Lazy.unpack $ Data.ByteString.Lazy.fromStrict $ Data.ByteString.Char8.pack $ show p)
+
+Blob $ Data.ByteString.Lazy.unpack $ Data.ByteString.Lazy.fromStrict $ Data.ByteString.Char8.pack $ show p
+
+Blob $ Data.ByteString.Lazy.fromStrict $ Data.ByteString.Char8.pack $ show p
+
+:t Blob
+
+:t b
+
+Data.ByteString.Lazy.pack $ encode_blob b
+
+Data.ByteString.Lazy.toStrict $
+
+:t encode_blob
+  
+:t Data.ByteString.Char8.pack $ show p
+
+:t Sound.OSC.Type.JSON.Value
+
+do 
+  let wrapDirts ds = do x <- openUDP "127.0.0.1" 57121
+                        let f (n,d) p = do now <- getNow
+                                           sendOSC x $ Message "/vis" [int32 (floor now), int32 (n+1),
+                                                                       Blob b
+                                                                       -- string $ show $
+                                                                       -- encode_json_str $
+                                                                       -- blob $ encode_blob $
+                                                                       -- A.encode $ A.toJSON $
+                                                                       -- map killSnd $
+                                                                       -- arc p (now,now+3)
+                                                                      ]
+                                           d p
+                            fs = map f (enumerate ds)
+                        return fs
+  [x1,x2,x3,x4,x5] <- wrapDirts [d1,d2,d3,d4,d5]
+  x1 $ sound "bd cp"
+
+do 
+  let wrapDirts ds = do x <- openUDP "127.0.0.1" 57121
+                        let f (n,d) p = do now <- getNow
+                                           sendOSC x $ Message "/vis" [Blob (blob_pack [112,123])]
+                                           d p
+                            fs = map f (enumerate ds)
+                        return fs
+  [x1,x2,x3,x4,x5] <- wrapDirts [d1,d2,d3,d4,d5]
+  x1 $ sound "bd cp"
+
+
+do 
+  let wrapDirts ds = do x <- openUDP "127.0.0.1" 57121
+                        let f (n,d) p = do now <- getNow
+                                           sendOSC x $ Message "/vis" [int32 (floor now),
+                                                                       Blob $
+                                                                       Data.ByteString.Lazy.fromStrict $
+                                                                       Data.ByteString.Char8.pack $ show p]
+                                           d p
+                            fs = map f (enumerate ds)
+                        return fs
+  [x1,x2,x3,x4,x5] <- wrapDirts [d1,d2,d3,d4,d5]
+  x1 $ sound "bd cp"
+
+Blob $ Data.ByteString.Lazy.fromStrict $ Data.ByteString.Char8.pack $ show p
+
+show p
+
+do 
+  let wrapDirts ds = do x <- openUDP "127.0.0.1" 57121
+                        let f (n,d) p = do now <- getNow
+                                           sendOSC x $ Message "/vis" [int32 (floor now),
+                                                                       Blob $
+                                                                       Data.ByteString.Lazy.fromStrict $
+                                                                       Data.ByteString.Char8.pack $
+                                                                       show $
+                                                                       A.encode $ A.toJSON $
+                                                                       map killSnd $
+                                                                       arc p (now+0, now+1)]
+                                           d p
+                            fs = map f (enumerate ds)
+                        return fs
+  [x1,x2,x3,x4,x5] <- wrapDirts [d1,d2,d3,d4,d5]
+  -- x1 $ sound "bd cp lt ht" # gain "0.5 1"  
+  x1 $ sl 2
+       . jux (rev)
+       . ev 4 (fa 0.5 . (> ac "2.5 -2.5") . (> end "0.25")) . ev 8 ((> sp "-1") . (> vowel "i e o u"))
+       .(> rvb "0.1:0.1").(> del "0.2:0.05:0.5").(> hpf' (ssinf 0.5e3 1.5e3 (1/16)) "0.2")
+       $ u (
+           fmap (+12) $
+           ev 4 (fmap (+2)) $
+           ev 12 (fmap (+5)) $
+           oa (1/2) (-12) $
+           "[0 3 -4 -7 -9 [3 1]]"
+         ) > s "[vxda]" > end "0.05" > go "0.8:2"
+
+
+let complex = sl 2 . jux (rev) . ev 4 (fa 0.5 . (> ac "2.5 -2.5") . (> end "0.25")) . ev 8 ((> sp "-1") . (> vowel "i e o u")) .(> rvb "0.1:0.1").(> del "0.2:0.05:0.5").(> hpf' (ssinf 0.5e3 1.5e3 (1/16)) "0.2") $ u ( fmap (+12) $ ev 4 (fmap (+2)) $ ev 12 (fmap (+5)) $ oa (1/2) (-12) $ "[0 3 -4 -7 -9 [3 1]]") > s "[vxda]" > end "0.05" > go "0.8:2"
+
+show complex

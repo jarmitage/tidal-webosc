@@ -60,7 +60,7 @@ class OSCWebSocketServer {
 
   sendOscToWebSocket(oscMessageOrBundle) {
     if (!this.webSocketConnected) {
-      console.error(`${this.constructor.name} WebSocket is not connected`); // eslint-disable-line no-console
+      // console.error(`${this.constructor.name} WebSocket is not connected`); // eslint-disable-line no-console
       return;
     }
     // TODO check if the websocket exists and is open!!!
