@@ -18,10 +18,10 @@ class Tidal extends OSCWebSocketServer {
         oscMessageOrBundle.address === '/osc-setup') {
       this.sendOscToServer({ address: '/osc-setup-reply' });
     } else {
-      let blob = oscMessageOrBundle.args[1].value;
-      oscMessageOrBundle.args[1].value = JSON.parse(blob.toString());
-      console.log(oscMessageOrBundle);
-      // console.log(JSON.parse(blob.toString()));
+      let blob = oscMessageOrBundle.args[2].value;
+      // TODO: why is it stringify'd twice?
+      oscMessageOrBundle.args[2].value = JSON.parse(JSON.parse(blob.toString()));
+      console.log(oscMessageOrBundle.args[2].value);
       this.sendOscToWebSocket(oscMessageOrBundle);
     }
   }

@@ -27,11 +27,8 @@ class OSC extends React.Component{
     };
 
     const onMessage = data => {
-      let blob = data.args[1].value;
-      console.log(data);
-      // console.log(JSON.parse(blob));
-      this.setState({address: data.address, args: data.args})
-      // console.log(data);
+      console.log(data.args[2].value);
+      // this.setState({address: data.address, args: data.args})
     };
 
     const send = msg => {
