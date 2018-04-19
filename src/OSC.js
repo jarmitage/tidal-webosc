@@ -27,7 +27,7 @@ class OSC extends React.Component{
     };
 
     const onMessage = data => {
-      console.log(data.args[2].value);
+      console.log(JSON.stringify(data.args[2].value));
       // this.setState({address: data.address, args: data.args})
     };
 
